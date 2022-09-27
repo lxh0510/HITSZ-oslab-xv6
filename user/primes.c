@@ -19,11 +19,7 @@ void primes()
         int pid=fork();
         if(pid==0)                        //子进程
         {
-            mapping(0,fd);                    //子进程将管道的读端口映射到描述符0上
-            primes();                         //循环执行该函数
-        }
-        else{
-            mapping(1,fd);                // 父进程将管道的写端口映射到描述符1上
+            mapping(1,fd);                // 子进程将管道的写端口映射到描述符1上
             while(read(0,&next,sizeof(int)))
             {
                 if(next%current!=0)              //如果该数据不能整除第一个质数
@@ -31,7 +27,11 @@ void primes()
                     write(1,&next,sizeof(int));       //将该数据写入管道
                 }
             }
-            wait(NULL);                       //等待子进程结束
+        }
+        else{
+            wait(NULL);                          //等待子进程结束
+            mapping(0,fd);                    //父进程将管道的读端口映射到描述符0上
+            primes();                         //循环执行该函数
         }
     }
 }
@@ -41,15 +41,16 @@ int main(int argc,char* argv[]){
     pipe(pd);
     int pid=fork();
     if(pid==0){
-            mapping(0,pd);                    //子进程将管道的读端口映射到描述符0上
-            primes();                         //对父进程写入数据执行素数筛选函数
-    }
-    else{
         mapping(1,pd);
-        for(int i=2;i<=35;i++){              //父进程将2-35读入管道
+        for(int i=2;i<=35;i++){              //子进程将2-35读入管道
             write(1,&i,sizeof(int));
         }
+    }
+    else{
         wait(NULL);                          //等待子进程结束
+        mapping(0,pd);                    //父进程将管道的读端口映射到描述符0上
+        primes();                         //对子进程写入数据执行素数筛选函数
+    
     }
     exit(0);
 }
