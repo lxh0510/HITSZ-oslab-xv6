@@ -42,7 +42,7 @@ int main(int argc,char* argv[]){
     int pid=fork();
     if(pid==0){
         mapping(1,pd);
-        for(int i=2;i<=35;i++){              //子进程将2-35读入管道
+        for(int i=2;i<=35;i++){              //子进程将2-35写入管道
             write(1,&i,sizeof(int));
         }
     }
