@@ -2,8 +2,18 @@
 #include "user.h"
 int main(int argc,char* argv[]){
     int p1[2],p2[2];
-    pipe(p1);
-    pipe(p2);
+    int ret1 = pipe(p1);
+    if(ret1<0)
+    {
+        printf("Pipe Error!");
+        exit(-1);
+    }
+    int ret2 = pipe(p2);
+    if(ret2<0)
+    {
+        printf("Pipe Error!");
+        exit(-1);
+    }
     char buf1[4] ;
     char buf2[4] ;
     if (fork() == 0)
