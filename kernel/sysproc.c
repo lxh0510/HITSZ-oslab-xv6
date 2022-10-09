@@ -6,6 +6,7 @@
 #include "memlayout.h"
 #include "spinlock.h"
 #include "proc.h"
+#include "sysinfo.h"
 
 uint64
 sys_exit(void)
@@ -94,4 +95,31 @@ sys_uptime(void)
   xticks = ticks;
   release(&tickslock);
   return xticks;
+}
+
+//trace
+uint64
+sys_trace(void)
+{
+  int mask;
+  if(argint(0,&mask)<0)             //若读取mask异常返回-1
+    return -1;
+  myproc()->mask = mask;                  //将读取的mask存入结构体proc中
+  return 0;                               //正常返回0
+}
+
+//sysinfo
+uint64
+sys_sysinfo(void)
+{
+  struct sysinfo info;                  //创建sysinfo结构体
+  info.freemem = freemem();             //填写结构体各个成员变量
+  info.nproc = nproc();
+  info.freefd = freefd(); 
+  uint64 addr;
+  if(argaddr(0,&addr)<0)             //获得用户进程页表地址
+    return -1;
+  if(copyout(myproc()->pagetable, addr, (char *)&info, sizeof(info)) < 0)    //将内核空间中结构体复制到用户空间
+      return -1;
+  return 0;
 }

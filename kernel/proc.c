@@ -130,6 +130,7 @@ found:
   return p;
 }
 
+
 // free a proc structure and the data hanging from it,
 // including user pages.
 // p->lock must be held.
@@ -274,6 +275,9 @@ fork(void)
     return -1;
   }
   np->sz = p->sz;
+
+  //trace
+  np->mask = p->mask;
 
   np->parent = p;
 
@@ -692,4 +696,36 @@ procdump(void)
     printf("%d %s %s", p->pid, state, p->name);
     printf("\n");
   }
+}
+
+//UNUSED进程数量
+uint64 
+nproc(void)
+{
+  uint64 num=0;
+  struct proc *p;
+
+  for(p = proc; p < &proc[NPROC]; p++) {            //遍历所有进程
+    acquire(&p->lock);
+    if(p->state == UNUSED) {                       //若进程状态为UNUSED，即空闲状态
+      num++;
+    } 
+    release(&p->lock);
+  }
+  return num;
+}
+
+//未使用文件描述符数量
+uint64 
+freefd(void)
+{
+  uint64 num=0;
+
+  for(int i=0;i<NOFILE;i++){
+    if(myproc()->ofile[i] == 0)                       //通过exit函数中查询，若文件描述符未使用，其值为0
+    {
+      num++;
+    } 
+    }
+  return num;
 }
