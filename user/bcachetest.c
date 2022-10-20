@@ -156,6 +156,7 @@ void test1()
       createfile(file, 1);
     }
   }
+  
   for(int i = 0; i < NCHILD; i++){
     file[1] = '0' + i;
     int pid = fork();
