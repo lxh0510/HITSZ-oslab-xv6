@@ -81,11 +81,9 @@ void *
 kalloc(void)
 {
   struct run *r;
-
   // 关闭中断并获取cpuid
   push_off();
   int cid=cpuid();
-
   acquire(&kmems[cid].lock);   // 加锁 
   r = kmems[cid].freelist;  // 获取cpuid为cid的cpu的空闲内存链表
 
@@ -114,9 +112,8 @@ kalloc(void)
       return 0;
     } 
   }
-
   release(&kmems[cid].lock);         // 将cid对应cpu解锁
-  pop_off();                         // 打开中断
+  pop_off();                         // 打开中断S
 
   if(r)
     memset((char*)r, 5, PGSIZE); // fill with junk

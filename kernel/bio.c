@@ -165,7 +165,7 @@ brelse(struct buf *b)
   b->refcnt--;                                       // 该块被引用次数减一
   if (b->refcnt == 0) {                              // 若该缓存块成为了空闲内存
     // no one is waiting for it.
-    b->next->prev = b->prev;                           // 将其移入空闲内存列表的头部
+    b->next->prev = b->prev;                           // 将其移入缓存链表的头部
     b->prev->next = b->next;
     b->next = bcache.hashbucket[bucketno].next;
     b->prev = &bcache.hashbucket[bucketno];
